@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Juego de Matemáticas</title>
+  <style>
+    /* Diseño básico y responsivo */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #333;
+      position: relative;
+    }
+    .container {
+      max-width: 500px;
+      width: 90%;
+      background-color: #fff;
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      z-index: 1;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    .options {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .options label {
+      margin-right: 10px;
+    }
+    .problem {
+      font-size: 2em;
+      text-align: center;
+      margin: 20px 0;
+    }
+    .input-area {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .display-answer {
+      font-size: 1.5em;
+      width: 120px;
+      padding: 10px;
+      text-align: center;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+    }
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .key {
+      padding: 15px;
+      font-size: 1.2em;
+      background-color: #ddd;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .key:hover {
+      background-color: #ccc;
+    }
+    .stats {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .timer {
+      font-size: 1.2em;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 500px) {
+      .key {
+        padding: 12px;
+        font-size: 1em;
+      }
+    }
+    /* Overlay para mensajes */
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+    #overlay .message-box {
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 1.3em;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <div id="overlay">
+    <div class="message-box" id="messageBox"></div>
+  </div>
+  <div class="container">
+    <h1>Juego de Matemáticas</h1>
+    <div class="options">
+      <label>
+        <input type="checkbox" id="timerToggle" checked>
+        Activar Temporizador
+      </label>
+      <label>
+        Tiempo:
+        <select id="timerValue">
+          <option value="10">10 s</option>
+          <option value="20" selected>20 s</option>
+          <option value="30">30 s</option>
+        </select>
+      </label>
+      <label>
+        Operación:
+        <select id="operation">
+          <option value="suma" selected>Suma</option>
+          <option value="multiplicacion">Multiplicación</option>
+        </select>
+      </label>
+    </div>
+    <div class="timer">
+      Tiempo: <span id="time">20</span> s
+    </div>
+    <div class="problem" id="problem">?</div>
+    <div class="input-area">
+      <input type="text" id="answer" class="display-answer" readonly placeholder="0">
+    </div>
+    <div class="keypad">
+      <!-- Números 1-9 -->
+      <button class="key" data-key="1">1</button>
+      <button class="key" data-key="2">2</button>
+      <button class="key" data-key="3">3</button>
+      <button class="key" data-key="4">4</button>
+      <button class="key" data-key="5">5</button>
+      <button class="key" data-key="6">6</button>
+      <button class="key" data-key="7">7</button>
+      <button class="key" data-key="8">8</button>
+      <button class="key" data-key="9">9</button>
+      <!-- Botón de borrar y 0 -->
+      <button class="key" id="clear">C</button>
+      <button class="key" data-key="0">0</button>
+      <button class="key" id="submit">✔</button>
+    </div>
+    <div class="stats">
+      <h2>Estadísticas</h2>
+      <p>Puntos: <span id="points">0</span></p>
+      <p>Correctas: <span id="correct">0</span> / Intentos: <span id="attempts">0</span></p>
+    </div>
+  </div>
+
+  <script>
+    // Variables del juego
+    let num1, num2, correctAnswer;
+    let points = 0;
+    let correctCount = 0;
+    let attempts = 0;
+    let timer;
+    let timeLeft = parseInt(document.getElementById('timerValue').value);
+    let timerEnabled = true;
+
+    // Referencias a elementos HTML
+    const problemEl = document.getElementById('problem');
+    const answerEl = document.getElementById('answer');
+    const pointsEl = document.getElementById('points');
+    const correctEl = document.getElementById('correct');
+    const attemptsEl = document.getElementById('attempts');
+    const timeEl = document.getElementById('time');
+    const timerToggle = document.getElementById('timerToggle');
+    const timerValueSelect = document.getElementById('timerValue');
+    const operationSelect = document.getElementById('operation');
+    const keypadButtons = document.querySelectorAll('.key');
+    const overlay = document.getElementById('overlay');
+    const messageBox = document.getElementById('messageBox');
+
+    // Detectar cambios en el checkbox del temporizador
+    timerToggle.addEventListener('change', () => {
+      timerEnabled = timerToggle.checked;
+      if (!timerEnabled) {
+        clearInterval(timer);
+        timeEl.textContent = "-";
+      } else {
+        timeLeft = parseInt(timerValueSelect.value);
+        timeEl.textContent = timeLeft;
+        resetTimer();
+      }
+    });
+
+    // Detectar cambios en el valor del temporizador
+    timerValueSelect.addEventListener('change', () => {
+      timeLeft = parseInt(timerValueSelect.value);
+      if (timerEnabled) {
+        resetTimer();
+      }
+      timeEl.textContent = timerEnabled ? timeLeft : "-";
+    });
+
+    // Al cambiar la operación se genera un nuevo problema automáticamente
+    operationSelect.addEventListener('change', () => {
+      generateProblem();
+    });
+
+    // Función para generar un problema nuevo según la operación seleccionada
+    function generateProblem() {
+      const operation = operationSelect.value;
+      if (operation === "suma") {
+        // Generar números de 1 o 2 dígitos para suma
+        num1 = Math.floor(Math.random() * 99) + 1;
+        num2 = Math.floor(Math.random() * 99) + 1;
+        correctAnswer = num1 + num2;
+        problemEl.textContent = `${num1} + ${num2} = ?`;
+      } else if (operation === "multiplicacion") {
+        // Generar números entre 1 y 10 para multiplicación
+        num1 = Math.floor(Math.random() * 10) + 1;
+        num2 = Math.floor(Math.random() * 10) + 1;
+        correctAnswer = num1 * num2;
+        problemEl.textContent = `${num1} × ${num2} = ?`;
+      }
+      // Resetear respuesta
+      answerEl.value = "";
+      // Reiniciar temporizador si está habilitado
+      if (timerEnabled) {
+        resetTimer();
+      } else {
+        timeEl.textContent = "-";
+      }
+    }
+
+    // Función para reiniciar el temporizador
+    function resetTimer() {
+      clearInterval(timer);
+      timeLeft = parseInt(timerValueSelect.value);
+      timeEl.textContent = timeLeft;
+      timer = setInterval(() => {
+        timeLeft--;
+        timeEl.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          attempts++;
+          updateStats();
+          showMessage(`Tiempo agotado.<br>La respuesta correcta era <strong>${correctAnswer}</strong>.`);
+        }
+      }, 1000);
+    }
+
+    // Función para actualizar estadísticas en pantalla
+    function updateStats() {
+      pointsEl.textContent = points;
+      correctEl.textContent = correctCount;
+      attemptsEl.textContent = attempts;
+    }
+
+    // Función para mostrar mensaje de feedback
+    function showMessage(msg) {
+      messageBox.innerHTML = msg;
+      overlay.style.display = 'flex';
+    }
+
+    // Al hacer clic en el overlay se cierra el mensaje y se genera un nuevo problema
+    overlay.addEventListener('click', () => {
+      overlay.style.display = 'none';
+      generateProblem();
+    });
+
+    // Función para procesar la respuesta ingresada
+    function checkAnswer() {
+      if (timerEnabled) clearInterval(timer);
+      attempts++;
+      let userAnswer = parseInt(answerEl.value);
+      if (userAnswer === correctAnswer) {
+        points += 10;
+        correctCount++;
+        showMessage(`<span style="color:green;">¡Correcto!</span><br>¡Has ganado 10 puntos!`);
+      } else {
+        showMessage(`<span style="color:red;">Incorrecto.</span><br>La respuesta correcta era <strong>${correctAnswer}</strong>.`);
+      }
+      updateStats();
+    }
+
+    // Eventos para el teclado numérico en pantalla
+    keypadButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const key = button.getAttribute('data-key');
+        if (button.id === 'clear') {
+          answerEl.value = "";
+        } else if (button.id === 'submit') {
+          if(answerEl.value !== "") checkAnswer();
+        } else if (key) {
+          answerEl.value += key;
+        }
+      });
+    });
+
+    // Inicializa el juego
+    generateProblem();
+  </script>
+</body>
+</html>
