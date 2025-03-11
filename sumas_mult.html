@@ -2,13 +2,19 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <!-- Evita zoom en iPhone al pulsar input -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Juego de Matemáticas</title>
+  <!-- Fuente de Google Fonts -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap">
+  <!-- Iconos de FontAwesome (opcional, para darle un toque con íconos) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
   <style>
-    /* Diseño básico y responsivo */
+    /* 1. Cambiamos la fuente por Nunito */
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
+      font-family: 'Nunito', sans-serif;
+      background-color: #f9fafc; /* Color de fondo suave */
       margin: 0;
       padding: 0;
       display: flex;
@@ -17,18 +23,27 @@
       color: #333;
       position: relative;
     }
+    /* 2. Ajustamos la tarjeta principal con borde redondeado y sombra */
     .container {
       max-width: 500px;
       width: 90%;
       background-color: #fff;
       margin-top: 20px;
       padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       z-index: 1;
     }
     h1, h2 {
       text-align: center;
+      margin: 10px 0;
+    }
+    /* Usamos un icono para darle identidad (opcional) */
+    h1::before {
+      content: "\f5da"; /* icono de 'brain' de FontAwesome */
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      margin-right: 8px;
     }
     .options {
       text-align: center;
@@ -37,6 +52,11 @@
     .options label {
       margin-right: 10px;
     }
+    /* 3. Agregamos select de Dificultad para ejemplificar */
+    #difficulty {
+      margin-left: 5px;
+    }
+
     .problem {
       font-size: 2em;
       text-align: center;
@@ -53,8 +73,9 @@
       padding: 10px;
       text-align: center;
       border: 2px solid #ccc;
-      border-radius: 4px;
+      border-radius: 6px;
     }
+    /* 4. Estilizamos el keypad con color y transiciones */
     .keypad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -64,15 +85,22 @@
     .key {
       padding: 15px;
       font-size: 1.2em;
-      background-color: #ddd;
+      background-color: #007bff; /* Color de acento */
+      color: #fff;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: background-color 0.2s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      /* Transiciones para hover/click */
+      transition: background-color 0.3s ease, transform 0.1s ease;
     }
     .key:hover {
-      background-color: #ccc;
+      background-color: #0056b3;
     }
+    .key:active {
+      transform: scale(0.95);
+    }
+
     .stats {
       text-align: center;
       margin-top: 20px;
@@ -82,13 +110,27 @@
       text-align: center;
       margin-bottom: 20px;
     }
+
+    /* 5. Racha de respuestas correctas consecutivas */
+    #streakContainer {
+      margin-top: 10px;
+    }
+
     @media (max-width: 500px) {
       .key {
         padding: 12px;
         font-size: 1em;
       }
+      .problem {
+        font-size: 1.5em;
+      }
+      .container {
+        margin-top: 10px;
+        padding: 15px;
+      }
     }
-    /* Overlay para mensajes */
+
+    /* 6. Overlay para mensajes con animaciones */
     #overlay {
       position: fixed;
       top: 0;
@@ -100,6 +142,16 @@
       justify-content: center;
       align-items: center;
       z-index: 10;
+      opacity: 0;
+      animation: fadeIn 0.3s forwards;
+    }
+    #overlay.show {
+      display: flex;
+    }
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
     }
     #overlay .message-box {
       background: #fff;
@@ -108,15 +160,26 @@
       text-align: center;
       font-size: 1.3em;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      animation: slideIn 0.4s forwards;
+      transform: translateY(-30px);
+    }
+    @keyframes slideIn {
+      to {
+        transform: translateY(0);
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Overlay para los mensajes de feedback -->
   <div id="overlay">
     <div class="message-box" id="messageBox"></div>
   </div>
+
   <div class="container">
     <h1>Juego de Matemáticas</h1>
+
+    <!-- Opciones: Temporizador, Tiempo, Operación, Dificultad -->
     <div class="options">
       <label>
         <input type="checkbox" id="timerToggle" checked>
@@ -137,14 +200,26 @@
           <option value="multiplicacion">Multiplicación</option>
         </select>
       </label>
+      <label>
+        Dificultad:
+        <select id="difficulty">
+          <option value="facil" selected>Fácil</option>
+          <option value="medio">Medio</option>
+          <option value="dificil">Difícil</option>
+        </select>
+      </label>
     </div>
+
     <div class="timer">
       Tiempo: <span id="time">20</span> s
     </div>
+
     <div class="problem" id="problem">?</div>
+
     <div class="input-area">
       <input type="text" id="answer" class="display-answer" readonly placeholder="0">
     </div>
+
     <div class="keypad">
       <!-- Números 1-9 -->
       <button class="key" data-key="1">1</button>
@@ -161,10 +236,16 @@
       <button class="key" data-key="0">0</button>
       <button class="key" id="submit">✔</button>
     </div>
+
+    <!-- Sección de estadísticas -->
     <div class="stats">
       <h2>Estadísticas</h2>
       <p>Puntos: <span id="points">0</span></p>
       <p>Correctas: <span id="correct">0</span> / Intentos: <span id="attempts">0</span></p>
+      <!-- 7. Mostramos la racha de aciertos consecutivos -->
+      <div id="streakContainer">
+        <p>Racha: <span id="streak">0</span></p>
+      </div>
     </div>
   </div>
 
@@ -178,6 +259,9 @@
     let timeLeft = parseInt(document.getElementById('timerValue').value);
     let timerEnabled = true;
 
+    // Variables para racha
+    let streak = 0;
+
     // Referencias a elementos HTML
     const problemEl = document.getElementById('problem');
     const answerEl = document.getElementById('answer');
@@ -188,9 +272,11 @@
     const timerToggle = document.getElementById('timerToggle');
     const timerValueSelect = document.getElementById('timerValue');
     const operationSelect = document.getElementById('operation');
+    const difficultySelect = document.getElementById('difficulty');
     const keypadButtons = document.querySelectorAll('.key');
     const overlay = document.getElementById('overlay');
     const messageBox = document.getElementById('messageBox');
+    const streakEl = document.getElementById('streak');
 
     // Detectar cambios en el checkbox del temporizador
     timerToggle.addEventListener('change', () => {
@@ -214,24 +300,31 @@
       timeEl.textContent = timerEnabled ? timeLeft : "-";
     });
 
-    // Al cambiar la operación se genera un nuevo problema automáticamente
-    operationSelect.addEventListener('change', () => {
-      generateProblem();
-    });
+    // Al cambiar la operación o dificultad se genera un nuevo problema automáticamente
+    operationSelect.addEventListener('change', generateProblem);
+    difficultySelect.addEventListener('change', generateProblem);
 
-    // Función para generar un problema nuevo según la operación seleccionada
+    // Función para generar un problema nuevo según la operación y dificultad
     function generateProblem() {
       const operation = operationSelect.value;
+      const difficulty = difficultySelect.value;
+
+      // Definimos el rango de números en función de la dificultad
+      let max = 10;
+      if (difficulty === 'medio') max = 50;
+      if (difficulty === 'dificil') max = 99;
+
       if (operation === "suma") {
-        // Generar números de 1 o 2 dígitos para suma
-        num1 = Math.floor(Math.random() * 99) + 1;
-        num2 = Math.floor(Math.random() * 99) + 1;
+        // Generar números para suma
+        num1 = Math.floor(Math.random() * max) + 1;
+        num2 = Math.floor(Math.random() * max) + 1;
         correctAnswer = num1 + num2;
         problemEl.textContent = `${num1} + ${num2} = ?`;
       } else if (operation === "multiplicacion") {
-        // Generar números entre 1 y 10 para multiplicación
-        num1 = Math.floor(Math.random() * 10) + 1;
-        num2 = Math.floor(Math.random() * 10) + 1;
+        // Generar números para multiplicación
+        // en rango según la dificultad
+        num1 = Math.floor(Math.random() * max) + 1;
+        num2 = Math.floor(Math.random() * max) + 1;
         correctAnswer = num1 * num2;
         problemEl.textContent = `${num1} × ${num2} = ?`;
       }
@@ -257,6 +350,9 @@
           clearInterval(timer);
           attempts++;
           updateStats();
+          // Rompemos la racha si se acaba el tiempo
+          streak = 0;
+          streakEl.textContent = streak;
           showMessage(`Tiempo agotado.<br>La respuesta correcta era <strong>${correctAnswer}</strong>.`);
         }
       }, 1000);
@@ -267,17 +363,23 @@
       pointsEl.textContent = points;
       correctEl.textContent = correctCount;
       attemptsEl.textContent = attempts;
+      streakEl.textContent = streak;
     }
 
-    // Función para mostrar mensaje de feedback
+    // Función para mostrar mensaje de feedback con animaciones
     function showMessage(msg) {
       messageBox.innerHTML = msg;
-      overlay.style.display = 'flex';
+      overlay.classList.add('show');
     }
 
     // Al hacer clic en el overlay se cierra el mensaje y se genera un nuevo problema
     overlay.addEventListener('click', () => {
-      overlay.style.display = 'none';
+      overlay.classList.remove('show');
+      overlay.style.display = 'none'; // para resetear
+      // Forzamos un pequeño retraso para reiniciar el overlay
+      setTimeout(() => {
+        overlay.style.display = '';
+      }, 300);
       generateProblem();
     });
 
@@ -289,8 +391,11 @@
       if (userAnswer === correctAnswer) {
         points += 10;
         correctCount++;
-        showMessage(`<span style="color:green;">¡Correcto!</span><br>¡Has ganado 10 puntos!`);
+        streak++; // aumenta racha
+        showMessage(`<span style="color:green;">¡Correcto!</span><br>¡Has ganado 10 puntos!<br><strong>Racha: ${streak}</strong>`);
       } else {
+        // respuesta incorrecta => racha se reinicia
+        streak = 0;
         showMessage(`<span style="color:red;">Incorrecto.</span><br>La respuesta correcta era <strong>${correctAnswer}</strong>.`);
       }
       updateStats();
@@ -310,7 +415,7 @@
       });
     });
 
-    // Inicializa el juego
+    // Inicializa el juego al cargar la página
     generateProblem();
   </script>
 </body>
