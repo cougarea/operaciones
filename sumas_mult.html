@@ -4,78 +4,109 @@
   <meta charset="UTF-8">
   <!-- Evita zoom en iPhone al pulsar input -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Juego de Matemáticas</title>
-  <!-- Fuente de Google Fonts -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap">
-  <!-- Iconos de FontAwesome (opcional, para darle un toque con íconos) -->
+  <title>Math Game</title>
+
+  <!-- Fuente con estilo más "girly" -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap">
+
+  <!-- Iconos de FontAwesome (opcional, para un ícono en el título) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
   <style>
-    /* 1. Cambiamos la fuente por Nunito */
+    /* Fuente y fondo general en tonos pastel rosados */
     body {
-      font-family: 'Nunito', sans-serif;
-      background-color: #f9fafc; /* Color de fondo suave */
+      font-family: 'Amatic SC', cursive;
+      background-color: #ffe4e1; /* Rosa claro */
       margin: 0;
       padding: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
-      color: #333;
+      color: #444;
       position: relative;
     }
-    /* 2. Ajustamos la tarjeta principal con borde redondeado y sombra */
+
     .container {
       max-width: 500px;
       width: 90%;
-      background-color: #fff;
+      background-color: #fffafc; /* Fondo contenedor más claro */
       margin-top: 20px;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       z-index: 1;
     }
-    h1, h2 {
-      text-align: center;
-      margin: 10px 0;
-    }
-    /* Usamos un icono para darle identidad (opcional) */
+
+    /* Ícono en el título: corazoncito (FontAwesome) */
     h1::before {
-      content: "\f5da"; /* icono de 'brain' de FontAwesome */
+      content: "\f004"; /* icono de 'heart' FA */
       font-family: "Font Awesome 6 Free";
       font-weight: 900;
       margin-right: 8px;
+      color: #f48fb1; /* Rosa */
     }
+    h1, h2 {
+      text-align: center;
+      margin: 10px 0;
+      color: #d81b60; /* Rosa más oscuro */
+    }
+
     .options {
       text-align: center;
       margin-bottom: 10px;
+      color: #444;
+      font-size: 1.3em;
     }
     .options label {
       margin-right: 10px;
     }
-    /* 3. Agregamos select de Dificultad para ejemplificar */
-    #difficulty {
-      margin-left: 5px;
+
+    #difficulty,
+    #timerValue,
+    #operation {
+      font-family: 'Amatic SC', cursive;
+      font-size: 1.1em;
+      padding: 3px 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      outline: none;
+      background-color: #fff;
+    }
+
+    .timer {
+      font-size: 1.4em;
+      text-align: center;
+      margin-bottom: 20px;
+      color: #d81b60;
     }
 
     .problem {
       font-size: 2em;
       text-align: center;
       margin: 20px 0;
+      color: #ad1457;
     }
+
     .input-area {
       display: flex;
       justify-content: center;
       margin-bottom: 20px;
     }
+
     .display-answer {
+      font-family: 'Amatic SC', cursive;
       font-size: 1.5em;
       width: 120px;
       padding: 10px;
       text-align: center;
-      border: 2px solid #ccc;
+      border: 2px solid #f48fb1;
       border-radius: 6px;
+      outline: none;
+      background-color: #fff;
+      color: #444;
     }
-    /* 4. Estilizamos el keypad con color y transiciones */
+
+    /* Teclado numérico en tonos pastel rosas */
     .keypad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -85,17 +116,16 @@
     .key {
       padding: 15px;
       font-size: 1.2em;
-      background-color: #007bff; /* Color de acento */
-      color: #fff;
+      background-color: #f8bbd0; /* Rosa pastel */
+      color: #444;
       border: none;
       border-radius: 6px;
       cursor: pointer;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      /* Transiciones para hover/click */
       transition: background-color 0.3s ease, transform 0.1s ease;
     }
     .key:hover {
-      background-color: #0056b3;
+      background-color: #f48fb1; /* Rosa un poco más oscuro */
     }
     .key:active {
       transform: scale(0.95);
@@ -104,16 +134,16 @@
     .stats {
       text-align: center;
       margin-top: 20px;
+      color: #444;
     }
-    .timer {
-      font-size: 1.2em;
-      text-align: center;
-      margin-bottom: 20px;
+    .stats p {
+      font-size: 1.4em;
+      margin: 5px 0;
     }
 
-    /* 5. Racha de respuestas correctas consecutivas */
-    #streakContainer {
-      margin-top: 10px;
+    /* Racha de aciertos consecutivos */
+    #streakContainer p {
+      margin: 5px 0;
     }
 
     @media (max-width: 500px) {
@@ -130,7 +160,7 @@
       }
     }
 
-    /* 6. Overlay para mensajes con animaciones */
+    /* Overlay para mensajes con animaciones */
     #overlay {
       position: fixed;
       top: 0;
@@ -158,7 +188,8 @@
       padding: 20px 30px;
       border-radius: 10px;
       text-align: center;
-      font-size: 1.3em;
+      font-size: 1.5em;
+      color: #444;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
       animation: slideIn 0.4s forwards;
       transform: translateY(-30px);
@@ -177,7 +208,7 @@
   </div>
 
   <div class="container">
-    <h1>Juego de Matemáticas</h1>
+    <h1>Math Game</h1>
 
     <!-- Opciones: Temporizador, Tiempo, Operación, Dificultad -->
     <div class="options">
@@ -242,7 +273,7 @@
       <h2>Estadísticas</h2>
       <p>Puntos: <span id="points">0</span></p>
       <p>Correctas: <span id="correct">0</span> / Intentos: <span id="attempts">0</span></p>
-      <!-- 7. Mostramos la racha de aciertos consecutivos -->
+      <!-- Racha de aciertos consecutivos -->
       <div id="streakContainer">
         <p>Racha: <span id="streak">0</span></p>
       </div>
@@ -322,7 +353,6 @@
         problemEl.textContent = `${num1} + ${num2} = ?`;
       } else if (operation === "multiplicacion") {
         // Generar números para multiplicación
-        // en rango según la dificultad
         num1 = Math.floor(Math.random() * max) + 1;
         num2 = Math.floor(Math.random() * max) + 1;
         correctAnswer = num1 * num2;
@@ -392,11 +422,11 @@
         points += 10;
         correctCount++;
         streak++; // aumenta racha
-        showMessage(`<span style="color:green;">¡Correcto!</span><br>¡Has ganado 10 puntos!<br><strong>Racha: ${streak}</strong>`);
+        showMessage(`<span style="color:#d81b60;">¡Correcto!</span><br>¡Has ganado 10 puntos!<br><strong>Racha: ${streak}</strong>`);
       } else {
         // respuesta incorrecta => racha se reinicia
         streak = 0;
-        showMessage(`<span style="color:red;">Incorrecto.</span><br>La respuesta correcta era <strong>${correctAnswer}</strong>.`);
+        showMessage(`<span style="color:#e91e63;">Incorrecto.</span><br>La respuesta correcta era <strong>${correctAnswer}</strong>.`);
       }
       updateStats();
     }
