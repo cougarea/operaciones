@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Juego de Matemáticas - Competencia</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Amatic SC', cursive;
+      background-color: #ffe4e1;
+      margin: 0;
+      padding: 0;
+      color: #444;
+      position: relative;
+      min-height: 100vh;
+    }
+    .back-button {
+      display: block;
+      margin: 10px auto;
+      background-color: #f48fb1;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 15px;
+      cursor: pointer;
+    }
+    #app {
+      max-width: 500px;
+      width: 90%;
+      background-color: #fffafc;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1::before {
+      content: "\f004";
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      margin-right: 8px;
+      color: #f48fb1;
+    }
+    h1, h2 {
+      text-align: center;
+      margin: 10px 0;
+      color: #d81b60;
+    }
+    .options {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #444;
+      font-size: 1.3em;
+    }
+    .options label {
+      margin-right: 10px;
+    }
+    #difficulty,
+    #timerValue,
+    #operation {
+      font-family: 'Amatic SC', cursive;
+      font-size: 1.1em;
+      padding: 3px 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      outline: none;
+      background-color: #fff;
+    }
+    .timer {
+      font-size: 1.4em;
+      text-align: center;
+      margin-bottom: 20px;
+      color: #d81b60;
+    }
+    .problem {
+      font-size: 2em;
+      text-align: center;
+      margin: 20px 0;
+      color: #ad1457;
+    }
+    .input-area {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .display-answer {
+      font-family: 'Amatic SC', cursive;
+      font-size: 1.5em;
+      width: 120px;
+      padding: 10px;
+      text-align: center;
+      border: 2px solid #f48fb1;
+      border-radius: 6px;
+      outline: none;
+      background-color: #fff;
+      color: #444;
+    }
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .key {
+      padding: 15px;
+      font-size: 1.2em;
+      background-color: #f8bbd0;
+      color: #444;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background-color 0.3s ease, transform 0.1s ease;
+    }
+    .key:hover {
+      background-color: #f48fb1;
+    }
+    .key:active {
+      transform: scale(0.95);
+    }
+    .stats {
+      text-align: center;
+      margin-top: 20px;
+      color: #444;
+    }
+    .stats p {
+      font-size: 1.4em;
+      margin: 5px 0;
+    }
+    #streakContainer p {
+      margin: 5px 0;
+    }
+    @media (max-width: 500px) {
+      .key {
+        padding: 12px;
+        font-size: 1em;
+      }
+      .problem {
+        font-size: 1.5em;
+      }
+      #app {
+        margin-top: 10px;
+        padding: 15px;
+      }
+    }
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      opacity: 0;
+      animation: fadeIn 0.3s forwards;
+    }
+    #overlay.show {
+      display: flex;
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+    #overlay .message-box {
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 1.5em;
+      color: #444;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      animation: slideIn 0.4s forwards;
+      transform: translateY(-30px);
+    }
+    @keyframes slideIn {
+      to { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <button class="back-button" onclick="location.href='sumas_mult.html'">← Menú</button>
+  <div id="app">
+    <h1>Modo Competencia</h1>
+    <div class="options">
+      <label>
+        <input type="checkbox" id="timerToggle" checked>
+        Activar Temporizador
+      </label>
+      <label>
+        Tiempo:
+        <select id="timerValue">
+          <option value="10">10 s</option>
+          <option value="15">15 s</option>
+          <option value="20" selected>20 s</option>
+          <option value="30">30 s</option>
+        </select>
+      </label>
+      <label>
+        Operación:
+        <select id="operation">
+          <option value="suma" selected>Suma</option>
+          <option value="multiplicacion">Multiplicación</option>
+        </select>
+      </label>
+      <label>
+        Dificultad:
+        <select id="difficulty">
+          <option value="facil" selected>Fácil</option>
+          <option value="medio">Medio</option>
+          <option value="dificil">Difícil</option>
+        </select>
+      </label>
+    </div>
+    <div class="timer">
+      Tiempo: <span id="time">20</span> s
+    </div>
+    <div class="problem" id="problem">?</div>
+    <div class="input-area">
+      <input type="text" id="answer" class="display-answer" readonly placeholder="0">
+    </div>
+    <div class="keypad">
+      <button class="key" data-key="1">1</button>
+      <button class="key" data-key="2">2</button>
+      <button class="key" data-key="3">3</button>
+      <button class="key" data-key="4">4</button>
+      <button class="key" data-key="5">5</button>
+      <button class="key" data-key="6">6</button>
+      <button class="key" data-key="7">7</button>
+      <button class="key" data-key="8">8</button>
+      <button class="key" data-key="9">9</button>
+      <button class="key" id="clear">C</button>
+      <button class="key" data-key="0">0</button>
+      <button class="key" id="submit">✔</button>
+    </div>
+    <div class="stats">
+      <h2>Estadísticas</h2>
+      <p>Puntos: <span id="points">0</span></p>
+      <p>Correctas: <span id="correct">0</span> / Intentos: <span id="attempts">0</span></p>
+      <div id="streakContainer">
+        <p>Racha: <span id="streak">0</span></p>
+      </div>
+    </div>
+  </div>
+  <div id="overlay">
+    <div class="message-box" id="messageBox"></div>
+  </div>
+  <script>
+    let num1, num2, correctAnswer;
+    let points = 0, correctCount = 0, attempts = 0, streak = 0;
+    let timer, timeLeft = 20;
+    let timerEnabled = true;
+    const timerToggle = document.getElementById('timerToggle');
+    const timerValueSelect = document.getElementById('timerValue');
+    const operationSelect = document.getElementById('operation');
+    const difficultySelect = document.getElementById('difficulty');
+    const problemEl = document.getElementById('problem');
+    const answerEl = document.getElementById('answer');
+    const pointsEl = document.getElementById('points');
+    const correctEl = document.getElementById('correct');
+    const attemptsEl = document.getElementById('attempts');
+    const timeEl = document.getElementById('time');
+    const streakEl = document.getElementById('streak');
+    const keypadButtons = document.querySelectorAll('.key');
+    const overlay = document.getElementById('overlay');
+    const messageBox = document.getElementById('messageBox');
+
+    function resetGameVariables() {
+      points = 0; correctCount = 0; attempts = 0; streak = 0;
+      updateStats();
+    }
+    function updateStats() {
+      pointsEl.textContent = points;
+      correctEl.textContent = correctCount;
+      attemptsEl.textContent = attempts;
+      streakEl.textContent = streak;
+    }
+    function generateProblem() {
+      const operation = operationSelect.value;
+      const difficulty = difficultySelect.value;
+      let max = 10;
+      if (difficulty === 'medio') max = 50;
+      if (difficulty === 'dificil') max = 99;
+      if (operation === "suma") {
+         num1 = Math.floor(Math.random() * max) + 1;
+         num2 = Math.floor(Math.random() * max) + 1;
+         correctAnswer = num1 + num2;
+         problemEl.textContent = `${num1} + ${num2} = ?`;
+      } else if (operation === "multiplicacion") {
+         num1 = Math.floor(Math.random() * max) + 1;
+         num2 = Math.floor(Math.random() * max) + 1;
+         correctAnswer = num1 * num2;
+         problemEl.textContent = `${num1} × ${num2} = ?`;
+      }
+      answerEl.value = "";
+      if (timerEnabled) {
+         resetTimer();
+      } else {
+         timeEl.textContent = "-";
+      }
+    }
+    function resetTimer() {
+      clearInterval(timer);
+      timeLeft = parseInt(timerValueSelect.value);
+      timeEl.textContent = timeLeft;
+      timer = setInterval(() => {
+         timeLeft--;
+         timeEl.textContent = timeLeft;
+         if (timeLeft <= 0) {
+            clearInterval(timer);
+            attempts++;
+            updateStats();
+            streak = 0;
+            streakEl.textContent = streak;
+            showMessage(`Tiempo agotado.<br>La respuesta correcta era <strong>${correctAnswer}</strong>.`);
+         }
+      }, 1000);
+    }
+    function showMessage(msg) {
+      messageBox.innerHTML = msg;
+      overlay.classList.add('show');
+    }
+    overlay.addEventListener('click', () => {
+      overlay.classList.remove('show');
+      overlay.style.display = 'none';
+      setTimeout(() => { overlay.style.display = ''; }, 300);
+      generateProblem();
+    });
+    function checkAnswer() {
+      if (timerEnabled) clearInterval(timer);
+      attempts++;
+      let userAnswer = parseInt(answerEl.value);
+      if (userAnswer === correctAnswer) {
+         points += 10;
+         correctCount++;
+         streak++;
+         showMessage(`<span style="color:#d81b60;">¡Correcto!</span><br>¡Has ganado 10 puntos!<br><strong>Racha: ${streak}</strong>`);
+      } else {
+         streak = 0;
+         showMessage(`<span style="color:#e91e63;">Incorrecto.</span><br>La respuesta correcta era <strong>${correctAnswer}</strong>.`);
+      }
+      updateStats();
+    }
+    keypadButtons.forEach(button => {
+      button.addEventListener('click', () => {
+         const key = button.getAttribute('data-key');
+         if (button.id === 'clear') {
+            answerEl.value = "";
+         } else if (button.id === 'submit') {
+            if (answerEl.value !== "") checkAnswer();
+         } else if (key) {
+            answerEl.value += key;
+         }
+      });
+    });
+    resetGameVariables();
+    generateProblem();
+  </script>
+</body>
+</html>

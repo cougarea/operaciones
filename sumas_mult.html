@@ -2,451 +2,52 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <!-- Evita zoom en iPhone al pulsar input -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Math Game</title>
-
-  <!-- Fuente con estilo más "girly" -->
+  <title>Juego de Matemáticas - Menú</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap">
-
-  <!-- Iconos de FontAwesome (opcional, para un ícono en el título) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
   <style>
-    /* Fuente y fondo general en tonos pastel rosados */
     body {
       font-family: 'Amatic SC', cursive;
-      background-color: #ffe4e1; /* Rosa claro */
+      background-color: #ffe4e1;
       margin: 0;
       padding: 0;
+      color: #444;
       display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
       flex-direction: column;
-      align-items: center;
-      color: #444;
-      position: relative;
     }
-
-    .container {
-      max-width: 500px;
-      width: 90%;
-      background-color: #fffafc; /* Fondo contenedor más claro */
-      margin-top: 20px;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      z-index: 1;
-    }
-
-    /* Ícono en el título: corazoncito (FontAwesome) */
-    h1::before {
-      content: "\f004"; /* icono de 'heart' FA */
-      font-family: "Font Awesome 6 Free";
-      font-weight: 900;
-      margin-right: 8px;
-      color: #f48fb1; /* Rosa */
-    }
-    h1, h2 {
-      text-align: center;
-      margin: 10px 0;
-      color: #d81b60; /* Rosa más oscuro */
-    }
-
-    .options {
-      text-align: center;
-      margin-bottom: 10px;
-      color: #444;
-      font-size: 1.3em;
-    }
-    .options label {
-      margin-right: 10px;
-    }
-
-    #difficulty,
-    #timerValue,
-    #operation {
-      font-family: 'Amatic SC', cursive;
-      font-size: 1.1em;
-      padding: 3px 5px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      outline: none;
-      background-color: #fff;
-    }
-
-    .timer {
-      font-size: 1.4em;
-      text-align: center;
-      margin-bottom: 20px;
+    h1 {
       color: #d81b60;
+      margin-bottom: 40px;
     }
-
-    .problem {
-      font-size: 2em;
-      text-align: center;
-      margin: 20px 0;
-      color: #ad1457;
-    }
-
-    .input-area {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-
-    .display-answer {
-      font-family: 'Amatic SC', cursive;
+    .menu-button {
+      background-color: #f48fb1;
+      color: #fff;
       font-size: 1.5em;
-      width: 120px;
-      padding: 10px;
-      text-align: center;
-      border: 2px solid #f48fb1;
-      border-radius: 6px;
-      outline: none;
-      background-color: #fff;
-      color: #444;
-    }
-
-    /* Teclado numérico en tonos pastel rosas */
-    .keypad {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .key {
-      padding: 15px;
-      font-size: 1.2em;
-      background-color: #f8bbd0; /* Rosa pastel */
-      color: #444;
       border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      transition: background-color 0.3s ease, transform 0.1s ease;
-    }
-    .key:hover {
-      background-color: #f48fb1; /* Rosa un poco más oscuro */
-    }
-    .key:active {
-      transform: scale(0.95);
-    }
-
-    .stats {
-      text-align: center;
-      margin-top: 20px;
-      color: #444;
-    }
-    .stats p {
-      font-size: 1.4em;
-      margin: 5px 0;
-    }
-
-    /* Racha de aciertos consecutivos */
-    #streakContainer p {
-      margin: 5px 0;
-    }
-
-    @media (max-width: 500px) {
-      .key {
-        padding: 12px;
-        font-size: 1em;
-      }
-      .problem {
-        font-size: 1.5em;
-      }
-      .container {
-        margin-top: 10px;
-        padding: 15px;
-      }
-    }
-
-    /* Overlay para mensajes con animaciones */
-    #overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 10;
-      opacity: 0;
-      animation: fadeIn 0.3s forwards;
-    }
-    #overlay.show {
-      display: flex;
-    }
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
-      }
-    }
-    #overlay .message-box {
-      background: #fff;
-      padding: 20px 30px;
       border-radius: 10px;
-      text-align: center;
-      font-size: 1.5em;
-      color: #444;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      animation: slideIn 0.4s forwards;
-      transform: translateY(-30px);
+      padding: 15px 30px;
+      margin: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.1s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      width: 250px;
     }
-    @keyframes slideIn {
-      to {
-        transform: translateY(0);
-      }
+    .menu-button:hover {
+      background-color: #f06292;
+    }
+    .menu-button:active {
+      transform: scale(0.95);
     }
   </style>
 </head>
 <body>
-  <!-- Overlay para los mensajes de feedback -->
-  <div id="overlay">
-    <div class="message-box" id="messageBox"></div>
-  </div>
-
-  <div class="container">
-    <h1>Math Game</h1>
-
-    <!-- Opciones: Temporizador, Tiempo, Operación, Dificultad -->
-    <div class="options">
-      <label>
-        <input type="checkbox" id="timerToggle" checked>
-        Activar Temporizador
-      </label>
-      <label>
-        Tiempo:
-        <select id="timerValue">
-          <option value="10">10 s</option>
-          <option value="20" selected>20 s</option>
-          <option value="30">30 s</option>
-        </select>
-      </label>
-      <label>
-        Operación:
-        <select id="operation">
-          <option value="suma" selected>Suma</option>
-          <option value="multiplicacion">Multiplicación</option>
-        </select>
-      </label>
-      <label>
-        Dificultad:
-        <select id="difficulty">
-          <option value="facil" selected>Fácil</option>
-          <option value="medio">Medio</option>
-          <option value="dificil">Difícil</option>
-        </select>
-      </label>
-    </div>
-
-    <div class="timer">
-      Tiempo: <span id="time">20</span> s
-    </div>
-
-    <div class="problem" id="problem">?</div>
-
-    <div class="input-area">
-      <input type="text" id="answer" class="display-answer" readonly placeholder="0">
-    </div>
-
-    <div class="keypad">
-      <!-- Números 1-9 -->
-      <button class="key" data-key="1">1</button>
-      <button class="key" data-key="2">2</button>
-      <button class="key" data-key="3">3</button>
-      <button class="key" data-key="4">4</button>
-      <button class="key" data-key="5">5</button>
-      <button class="key" data-key="6">6</button>
-      <button class="key" data-key="7">7</button>
-      <button class="key" data-key="8">8</button>
-      <button class="key" data-key="9">9</button>
-      <!-- Botón de borrar y 0 -->
-      <button class="key" id="clear">C</button>
-      <button class="key" data-key="0">0</button>
-      <button class="key" id="submit">✔</button>
-    </div>
-
-    <!-- Sección de estadísticas -->
-    <div class="stats">
-      <h2>Estadísticas</h2>
-      <p>Puntos: <span id="points">0</span></p>
-      <p>Correctas: <span id="correct">0</span> / Intentos: <span id="attempts">0</span></p>
-      <!-- Racha de aciertos consecutivos -->
-      <div id="streakContainer">
-        <p>Racha: <span id="streak">0</span></p>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Variables del juego
-    let num1, num2, correctAnswer;
-    let points = 0;
-    let correctCount = 0;
-    let attempts = 0;
-    let timer;
-    let timeLeft = parseInt(document.getElementById('timerValue').value);
-    let timerEnabled = true;
-
-    // Variables para racha
-    let streak = 0;
-
-    // Referencias a elementos HTML
-    const problemEl = document.getElementById('problem');
-    const answerEl = document.getElementById('answer');
-    const pointsEl = document.getElementById('points');
-    const correctEl = document.getElementById('correct');
-    const attemptsEl = document.getElementById('attempts');
-    const timeEl = document.getElementById('time');
-    const timerToggle = document.getElementById('timerToggle');
-    const timerValueSelect = document.getElementById('timerValue');
-    const operationSelect = document.getElementById('operation');
-    const difficultySelect = document.getElementById('difficulty');
-    const keypadButtons = document.querySelectorAll('.key');
-    const overlay = document.getElementById('overlay');
-    const messageBox = document.getElementById('messageBox');
-    const streakEl = document.getElementById('streak');
-
-    // Detectar cambios en el checkbox del temporizador
-    timerToggle.addEventListener('change', () => {
-      timerEnabled = timerToggle.checked;
-      if (!timerEnabled) {
-        clearInterval(timer);
-        timeEl.textContent = "-";
-      } else {
-        timeLeft = parseInt(timerValueSelect.value);
-        timeEl.textContent = timeLeft;
-        resetTimer();
-      }
-    });
-
-    // Detectar cambios en el valor del temporizador
-    timerValueSelect.addEventListener('change', () => {
-      timeLeft = parseInt(timerValueSelect.value);
-      if (timerEnabled) {
-        resetTimer();
-      }
-      timeEl.textContent = timerEnabled ? timeLeft : "-";
-    });
-
-    // Al cambiar la operación o dificultad se genera un nuevo problema automáticamente
-    operationSelect.addEventListener('change', generateProblem);
-    difficultySelect.addEventListener('change', generateProblem);
-
-    // Función para generar un problema nuevo según la operación y dificultad
-    function generateProblem() {
-      const operation = operationSelect.value;
-      const difficulty = difficultySelect.value;
-
-      // Definimos el rango de números en función de la dificultad
-      let max = 10;
-      if (difficulty === 'medio') max = 50;
-      if (difficulty === 'dificil') max = 99;
-
-      if (operation === "suma") {
-        // Generar números para suma
-        num1 = Math.floor(Math.random() * max) + 1;
-        num2 = Math.floor(Math.random() * max) + 1;
-        correctAnswer = num1 + num2;
-        problemEl.textContent = `${num1} + ${num2} = ?`;
-      } else if (operation === "multiplicacion") {
-        // Generar números para multiplicación
-        num1 = Math.floor(Math.random() * max) + 1;
-        num2 = Math.floor(Math.random() * max) + 1;
-        correctAnswer = num1 * num2;
-        problemEl.textContent = `${num1} × ${num2} = ?`;
-      }
-      // Resetear respuesta
-      answerEl.value = "";
-      // Reiniciar temporizador si está habilitado
-      if (timerEnabled) {
-        resetTimer();
-      } else {
-        timeEl.textContent = "-";
-      }
-    }
-
-    // Función para reiniciar el temporizador
-    function resetTimer() {
-      clearInterval(timer);
-      timeLeft = parseInt(timerValueSelect.value);
-      timeEl.textContent = timeLeft;
-      timer = setInterval(() => {
-        timeLeft--;
-        timeEl.textContent = timeLeft;
-        if (timeLeft <= 0) {
-          clearInterval(timer);
-          attempts++;
-          updateStats();
-          // Rompemos la racha si se acaba el tiempo
-          streak = 0;
-          streakEl.textContent = streak;
-          showMessage(`Tiempo agotado.<br>La respuesta correcta era <strong>${correctAnswer}</strong>.`);
-        }
-      }, 1000);
-    }
-
-    // Función para actualizar estadísticas en pantalla
-    function updateStats() {
-      pointsEl.textContent = points;
-      correctEl.textContent = correctCount;
-      attemptsEl.textContent = attempts;
-      streakEl.textContent = streak;
-    }
-
-    // Función para mostrar mensaje de feedback con animaciones
-    function showMessage(msg) {
-      messageBox.innerHTML = msg;
-      overlay.classList.add('show');
-    }
-
-    // Al hacer clic en el overlay se cierra el mensaje y se genera un nuevo problema
-    overlay.addEventListener('click', () => {
-      overlay.classList.remove('show');
-      overlay.style.display = 'none'; // para resetear
-      // Forzamos un pequeño retraso para reiniciar el overlay
-      setTimeout(() => {
-        overlay.style.display = '';
-      }, 300);
-      generateProblem();
-    });
-
-    // Función para procesar la respuesta ingresada
-    function checkAnswer() {
-      if (timerEnabled) clearInterval(timer);
-      attempts++;
-      let userAnswer = parseInt(answerEl.value);
-      if (userAnswer === correctAnswer) {
-        points += 10;
-        correctCount++;
-        streak++; // aumenta racha
-        showMessage(`<span style="color:#d81b60;">¡Correcto!</span><br>¡Has ganado 10 puntos!<br><strong>Racha: ${streak}</strong>`);
-      } else {
-        // respuesta incorrecta => racha se reinicia
-        streak = 0;
-        showMessage(`<span style="color:#e91e63;">Incorrecto.</span><br>La respuesta correcta era <strong>${correctAnswer}</strong>.`);
-      }
-      updateStats();
-    }
-
-    // Eventos para el teclado numérico en pantalla
-    keypadButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const key = button.getAttribute('data-key');
-        if (button.id === 'clear') {
-          answerEl.value = "";
-        } else if (button.id === 'submit') {
-          if(answerEl.value !== "") checkAnswer();
-        } else if (key) {
-          answerEl.value += key;
-        }
-      });
-    });
-
-    // Inicializa el juego al cargar la página
-    generateProblem();
-  </script>
+  <h1>Juego de Matemáticas</h1>
+  <button class="menu-button" onclick="location.href='sumas.html'">Sumas</button>
+  <button class="menu-button" onclick="location.href='multiplicaciones.html'">Multiplicaciones</button>
+  <button class="menu-button" onclick="location.href='competencia.html'">Competencia</button>
 </body>
 </html>

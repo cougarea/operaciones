@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <!-- Evita zoom en iPhone al pulsar input -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Juego de Matemáticas - Multiplicaciones</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Amatic SC', cursive;
+      background-color: #ffe4e1;
+      margin: 0;
+      padding: 0;
+      color: #444;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      color: #d81b60;
+    }
+    .back-button {
+      display: block;
+      margin: 10px auto;
+      background-color: #f48fb1;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 15px;
+      cursor: pointer;
+    }
+    #app {
+      max-width: 500px;
+      width: 90%;
+      background-color: #fffafc;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .timer, .problem, .input-area, .keypad, .stats {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .timer {
+      font-size: 1.4em;
+      color: #d81b60;
+    }
+    .problem {
+      font-size: 2em;
+      color: #ad1457;
+    }
+    .display-answer {
+      font-size: 1.5em;
+      width: 120px;
+      padding: 10px;
+      text-align: center;
+      border: 2px solid #f48fb1;
+      border-radius: 6px;
+      background-color: #fff;
+      color: #444;
+      margin: 0 auto;
+    }
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 0 auto 20px;
+    }
+    .key {
+      padding: 15px;
+      font-size: 1.2em;
+      background-color: #f8bbd0;
+      color: #444;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background-color 0.3s ease, transform 0.1s ease;
+    }
+    .key:hover {
+      background-color: #f48fb1;
+    }
+    .key:active {
+      transform: scale(0.95);
+    }
+    .stats {
+      text-align: center;
+      margin-top: 20px;
+      color: #444;
+    }
+    /* Eliminamos la sección de puntos y solo mostramos correctas, intentos, racha y récord */
+    .stats p {
+      font-size: 1.4em;
+      margin: 5px 0;
+    }
+    #streakContainer p, #recordContainer p {
+      margin: 5px 0;
+    }
+    @media (max-width: 500px) {
+      .key {
+        padding: 12px;
+        font-size: 1em;
+      }
+      .problem {
+        font-size: 1.5em;
+      }
+      #app {
+        margin-top: 10px;
+        padding: 15px;
+      }
+    }
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      opacity: 0;
+      animation: fadeIn 0.3s forwards;
+    }
+    #overlay.show {
+      display: flex;
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+    #overlay .message-box {
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 1.5em;
+      color: #444;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      animation: slideIn 0.4s forwards;
+      transform: translateY(-30px);
+    }
+    @keyframes slideIn {
+      to { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <button class="back-button" onclick="location.href='sumas_mult.html'">← Menú</button>
+  <div id="app">
+    <h1>Modo Multiplicaciones</h1>
+    <div class="timer">
+      Tiempo: <span id="time">10</span> s
+    </div>
+    <div class="problem" id="problem">?</div>
+    <div class="input-area">
+      <input type="text" id="answer" class="display-answer" readonly placeholder="0">
+    </div>
+    <div class="keypad">
+      <button class="key" data-key="1">1</button>
+      <button class="key" data-key="2">2</button>
+      <button class="key" data-key="3">3</button>
+      <button class="key" data-key="4">4</button>
+      <button class="key" data-key="5">5</button>
+      <button class="key" data-key="6">6</button>
+      <button class="key" data-key="7">7</button>
+      <button class="key" data-key="8">8</button>
+      <button class="key" data-key="9">9</button>
+      <button class="key" id="clear">C</button>
+      <button class="key" data-key="0">0</button>
+      <button class="key" id="submit">✔</button>
+    </div>
+    <div class="stats">
+      <h2>Estadísticas</h2>
+      <p>Correctas: <span id="correct">0</span> / Intentos: <span id="attempts">0</span></p>
+      <div id="streakContainer">
+        <p>Racha actual: <span id="streak">0</span></p>
+      </div>
+      <div id="recordContainer">
+        <p>Récord de racha: <span id="record">0</span></p>
+      </div>
+    </div>
+  </div>
+  <div id="overlay">
+    <div class="message-box" id="messageBox"></div>
+  </div>
+  <script>
+    // Variables para el modo multiplicaciones (sin puntos, solo racha y estadísticas)
+    let num1, num2, correctAnswer;
+    let correctCount = 0, attempts = 0, streak = 0;
+    let timer, timeLeft = 10;
+    let timerEnabled = true;
+    // Usamos localStorage para guardar el récord basado en la racha máxima
+    let record = localStorage.getItem("record1") ? parseInt(localStorage.getItem("record1")) : 0;
+
+    // Referencias a elementos
+    const timeEl = document.getElementById('time');
+    const problemEl = document.getElementById('problem');
+    const answerEl = document.getElementById('answer');
+    const correctEl = document.getElementById('correct');
+    const attemptsEl = document.getElementById('attempts');
+    const streakEl = document.getElementById('streak');
+    const recordEl = document.getElementById('record');
+    const keypadButtons = document.querySelectorAll('.key');
+    const overlay = document.getElementById('overlay');
+    const messageBox = document.getElementById('messageBox');
+
+    // Inicializamos el récord en la interfaz
+    recordEl.textContent = record;
+
+    function resetGameVariables() {
+      correctCount = 0;
+      attempts = 0;
+      streak = 0;
+      updateStats();
+    }
+
+    function updateStats() {
+      correctEl.textContent = correctCount;
+      attemptsEl.textContent = attempts;
+      streakEl.textContent = streak;
+      // Actualizamos el récord si la racha actual supera el récord anterior
+      if (streak > record) {
+        record = streak;
+        localStorage.setItem("record1", record);
+      }
+      recordEl.textContent = record;
+    }
+
+    function generateProblem() {
+      // Genera multiplicaciones con números entre 2 y 9
+      let min = 2, max = 9;
+      num1 = Math.floor(Math.random() * (max - min + 1)) + min;
+      num2 = Math.floor(Math.random() * (max - min + 1)) + min;
+      correctAnswer = num1 * num2;
+      problemEl.textContent = `${num1} × ${num2} = ?`;
+      answerEl.value = "";
+      if (timerEnabled) {
+         resetTimer();
+      } else {
+         timeEl.textContent = "-";
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      timeLeft = 10; // Temporizador fijo de 10 s
+      timeEl.textContent = timeLeft;
+      timer = setInterval(() => {
+         timeLeft--;
+         timeEl.textContent = timeLeft;
+         if (timeLeft <= 0) {
+            clearInterval(timer);
+            attempts++;
+            updateStats();
+            streak = 0;
+            streakEl.textContent = streak;
+            showMessage(`Tiempo agotado.<br>La respuesta correcta era <strong>${correctAnswer}</strong>.`);
+         }
+      }, 1000);
+    }
+
+    function showMessage(msg) {
+      messageBox.innerHTML = msg;
+      overlay.classList.add('show');
+    }
+
+    overlay.addEventListener('click', () => {
+      overlay.classList.remove('show');
+      overlay.style.display = 'none';
+      setTimeout(() => { overlay.style.display = ''; }, 300);
+      generateProblem();
+    });
+
+    function checkAnswer() {
+      if (timerEnabled) clearInterval(timer);
+      attempts++;
+      let userAnswer = parseInt(answerEl.value);
+      if (userAnswer === correctAnswer) {
+         correctCount++;
+         streak++;
+         showMessage(`<span style="color:#d81b60;">¡Correcto!</span><br>¡Has aumentado tu racha!<br><strong>Racha actual: ${streak}</strong>`);
+      } else {
+         streak = 0;
+         showMessage(`<span style="color:#e91e63;">Incorrecto.</span><br>La respuesta correcta era <strong>${correctAnswer}</strong>.`);
+      }
+      updateStats();
+    }
+
+    keypadButtons.forEach(button => {
+      button.addEventListener('click', () => {
+         const key = button.getAttribute('data-key');
+         if (button.id === 'clear') {
+            answerEl.value = "";
+         } else if (button.id === 'submit') {
+            if (answerEl.value !== "") checkAnswer();
+         } else if (key) {
+            answerEl.value += key;
+         }
+      });
+    });
+
+    resetGameVariables();
+    generateProblem();
+  </script>
+</body>
+</html>
